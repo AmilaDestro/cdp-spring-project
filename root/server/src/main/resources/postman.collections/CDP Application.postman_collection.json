@@ -1,0 +1,71 @@
+{
+	"info": {
+		"_postman_id": "4831bc6e-7bd1-4fd6-b382-708d633424f9",
+		"name": "CDP Application",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "{{env}}/status",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/status",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "{{env}}/requests",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/requests",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"requests"
+					]
+				},
+				"description": "GET requests"
+			},
+			"response": []
+		},
+		{
+			"name": "{{env}}/requests/last",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{env}}/requests/last",
+					"host": [
+						"{{env}}"
+					],
+					"path": [
+						"requests",
+						"last"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"id": "f3786bd3-b734-40ee-9f93-763cf102d87f",
+			"key": "env",
+			"value": "http://localhost:8081",
+			"type": "string"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
