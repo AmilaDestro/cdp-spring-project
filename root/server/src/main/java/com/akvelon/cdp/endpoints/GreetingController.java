@@ -26,7 +26,7 @@ public class GreetingController {
      * @return {@link String}
      */
     @RequestMapping(value = "/hello", method = GET)
-    public String greeting(@RequestParam(value="name", required=false, defaultValue = "World") String name) {
+    public String greeting(@RequestParam(value="name", required=false, defaultValue = "World")final String name) {
         return greeting.sayHello(name);
     }
 }
