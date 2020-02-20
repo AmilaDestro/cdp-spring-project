@@ -1,6 +1,8 @@
 package com.akvelon.cdp.clients;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.bndy.config.ConfigurationManager;

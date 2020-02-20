@@ -1,5 +1,6 @@
 package com.akvelon.cdp.entitieslib;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Builder;
 import lombok.Data;
 import lombok.ToString;
