@@ -26,6 +26,7 @@ import static java.lang.String.format;
 @Getter
 public abstract class AbstractClient {
     private static final String CONFIGURATION_FILE = "client.properties";
+    protected static final String ERROR_MESSAGE = "Exception was thrown during request execution: {}";
 
     protected CloseableHttpClient httpClient;
     protected String serverAddress;
