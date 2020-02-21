@@ -18,6 +18,10 @@ import java.time.format.DateTimeFormatter;
 
 import static java.lang.String.format;
 
+/**
+ * Abstract client which contains all basic methods for server host initialization
+ * and mapping from json to application objects
+ */
 @Slf4j
 @Getter
 public abstract class AbstractClient {
@@ -37,18 +41,38 @@ public abstract class AbstractClient {
         objectMapper = getObjectMapper();
     }
 
+    /**
+     * Retrieves JSON from {@link HttpResponse}
+     *
+     * @param response to process
+     * @return JSON object that was retrieved
+     * @throws IOException
+     */
     protected String mapResponseToJson(final HttpResponse response) throws IOException {
         return EntityUtils.toString(response.getEntity());
     }
 
+    /**
+     * Maps JSON to object of specified type
+     *
+     * @param json record to map
+     * @param type - class of object that must be deserialized
+     * @return Object of specified type
+     * @throws JsonProcessingException
+     */
     protected <T>T mapJsonToObject(final String json, final Class<T> type) throws JsonProcessingException {
         return objectMapper.readValue(json, type);
     }
 
+    /**
+     * Returns {@link ObjectMapper} that is capable to deserialize the application objects
+     * @return object mapper that ready to use
+     */
     private ObjectMapper getObjectMapper() {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JavaTimeModule javaTimeModule = new JavaTimeModule();
-        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        final ObjectMapper objectMapper = new ObjectMapper();
+
+        final JavaTimeModule javaTimeModule = new JavaTimeModule();
+        final LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
         javaTimeModule.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
         objectMapper.registerModule(javaTimeModule);
 
