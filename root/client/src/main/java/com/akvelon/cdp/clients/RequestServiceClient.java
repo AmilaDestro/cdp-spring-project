@@ -2,11 +2,6 @@ package com.akvelon.cdp.clients;
 
 import com.akvelon.cdp.entitieslib.Request;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonParser;
-import lombok.Generated;
 import lombok.val;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,7 +9,6 @@ import org.apache.http.client.utils.URIBuilder;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -68,13 +62,7 @@ public class RequestServiceClient extends AbstractClient {
     }
 
     private List<Request> mapJsonToRequestsList(final String json) throws JsonProcessingException {
-        List<Request> requests = new ArrayList<>();
-
-        Gson gson = new Gson();
-        JsonArray jsonArray = (JsonArray) JsonParser.parseString(json);
-        jsonArray.forEach(
-                jsonElement -> requests.add(gson.fromJson(jsonElement, Request.class))
-        );
-        return requests;
+        Request[] requestsArray = objectMapper.readValue(json, Request[].class);
+        return Arrays.asList(requestsArray);
     }
 }
