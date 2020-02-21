@@ -1,6 +1,5 @@
 package com.akvelon.cdp.clients;
 
-import lombok.extern.slf4j.Slf4j;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -8,18 +7,28 @@ import org.apache.http.client.utils.URIBuilder;
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-@Slf4j
+/**
+ * Client for HelloController of server application
+ */
 public class HelloServiceClient extends AbstractClient {
     private static final String HELLO_URL = "/hello";
 
+    /**
+     * Sends GET request to /hello endpoint and receives "Hello World"
+     * or "Hello <name>" if name param was specified
+     *
+     * @param name - username of the user to say hello
+     * @return greeting {@link String}
+     * @throws IOException
+     * @throws URISyntaxException
+     */
     public String greeting(final String name) throws IOException, URISyntaxException {
         final String helloUri = getServerAddress() + HELLO_URL;
-
-        URIBuilder uriBuilder = new URIBuilder(helloUri);
+        final URIBuilder uriBuilder = new URIBuilder(helloUri);
         uriBuilder.setParameter("name", name);
 
-        HttpGet httpGet = new HttpGet(uriBuilder.build());
-        CloseableHttpResponse response = getHttpClient().execute(httpGet);
+        final HttpGet httpGet = new HttpGet(uriBuilder.build());
+        final CloseableHttpResponse response = getHttpClient().execute(httpGet);
 
         return mapResponseToJson(response);
     }

@@ -2,7 +2,7 @@ package com.akvelon.cdp;
 
 import com.akvelon.cdp.clients.RequestServiceClient;
 import com.akvelon.cdp.clients.StatusServiceClient;
-import com.akvelon.cdp.entitieslib.Request;
+import com.akvelon.cdp.entitieslibrary.Request;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 
@@ -27,5 +27,9 @@ public class ClientApp {
 
         List<Request> allRequests = requestServiceClient.getAllRequests();
         log.debug("All made requests:\n{}", allRequests);
+
+        val requestIdToDelete = allRequests.get(0).getId();
+        val isDeleted = requestServiceClient.deleteRequestById(requestIdToDelete);
+        log.debug("Request with id {} was deleted {}", requestIdToDelete, isDeleted);
     }
 }
