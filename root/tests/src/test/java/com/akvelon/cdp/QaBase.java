@@ -5,7 +5,6 @@ import com.akvelon.cdp.clients.RequestServiceClient;
 import com.akvelon.cdp.clients.StatusServiceClient;
 import com.akvelon.cdp.entitieslibrary.Request;
 import lombok.extern.slf4j.Slf4j;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.asserts.SoftAssert;
 
@@ -27,7 +26,6 @@ public abstract class QaBase {
     }
 
     @BeforeClass
-    @AfterClass
     public void prepareTestEnvironment() {
         log.debug("Cleaning test environment");
         clearAllRequests();

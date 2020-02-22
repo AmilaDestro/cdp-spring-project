@@ -16,9 +16,9 @@ public class UrlPatternsUtil {
      */
     public static String getHostWithoutProtocol(final String url) {
         if (url.contains(HTTP_PREFIX)) {
-            return url.substring(HTTP_PREFIX.length() + 1);
+            return url.substring(HTTP_PREFIX.length());
         } else if (url.contains(HTTPS_PREFIX)) {
-            return url.substring(HTTP_PREFIX.length() + 1);
+            return url.substring(HTTP_PREFIX.length());
         }
         return url;
     }

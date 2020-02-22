@@ -9,7 +9,7 @@ public class TestDataProvider {
                 {"google.com", 1},
                 {"habr.com/ru/", 2},
                 {"http://sinoptik.ua", 3},
-                {"https://spring.io/guides/gs/rest-service/", 4}
+                {"https://rozetka.com.ua/", 4}
         };
     }
 }

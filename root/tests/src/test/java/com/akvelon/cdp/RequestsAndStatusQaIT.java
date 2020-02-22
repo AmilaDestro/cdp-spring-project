@@ -1,13 +1,23 @@
 package com.akvelon.cdp;
 
 import com.akvelon.cdp.data.TestDataProvider;
-import com.akvelon.cdp.entitieslibrary.Request;
+import com.akvelon.cdp.executors.RedirectAndStatusUpdateExecutor;
+import com.akvelon.cdp.utils.RequestUtil;
 import lombok.val;
 import org.testng.annotations.Test;
 
+import static com.akvelon.cdp.utils.RequestUtil.getLastRequestUrlSkipProtocol;
 import static java.lang.String.format;
 
 public class RequestsAndStatusQaIT extends QaBase {
+    private final RedirectAndStatusUpdateExecutor redirectAndStatusUpdateExecutor;
+    private final RequestUtil requestUtil;
+
+    public RequestsAndStatusQaIT() {
+        redirectAndStatusUpdateExecutor =
+                new RedirectAndStatusUpdateExecutor(this.requestServiceClient, this.statusServiceClient);
+        requestUtil = new RequestUtil(this.requestServiceClient);
+    }
 
     @Test
     public void getEmptyStatusRecordWhenNoRequestsPerformed() {
@@ -22,8 +32,8 @@ public class RequestsAndStatusQaIT extends QaBase {
 
     @Test(dataProviderClass = TestDataProvider.class, dataProvider = "urlsToRedirectAndNumbersOfRequest")
     public void redirectToSpecifiedUrlAndCheckStatus(final String url,
-                                                     final int expectedRequestNumber) { //todo: needs timeouts
-        val redirectSuccessful = requestServiceClient.redirectToSpecifiedUrlAndUpdateStatistic(url);
+                                                     final int expectedRequestNumber) {
+        val redirectSuccessful = redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(url);
         softAssert.assertTrue(redirectSuccessful, format("Redirect to URL %s was unsuccessful", url));
 
         val currentStatus = statusServiceClient.getStatus();
@@ -38,30 +48,11 @@ public class RequestsAndStatusQaIT extends QaBase {
                         actualRequestNumber));
 
         val statistic = currentStatus.getFullStatistic();
-        val expectedRequest = getRequestByUrl(url);
+        val expectedRequest = requestUtil.getRequestByUrl(url);
         softAssert.assertTrue(statistic.contains(expectedRequest),
                 format("Request %s is not included to full statistic.\nActual statistic:\n%s",
                 expectedRequest, statistic));
 
         softAssert.assertAll();
-    }
-
-    private Request getRequestByUrl(final String url) {
-        return requestServiceClient.getAllRequests()
-                .stream()
-                .filter(request -> request.getRequestUrl().contains(url))
-                .findFirst().orElse(null);
-    }
-
-    private String getLastRequestUrlSkipProtocol(final String visitedUrl) {
-        final String http = "http://";
-        final String https = "https://";
-        if (visitedUrl.contains(http)) {
-            return visitedUrl.substring(http.length());
-        }
-        if (visitedUrl.contains(https)) {
-            return visitedUrl.substring(https.length());
-        }
-        return visitedUrl;
     }
 }

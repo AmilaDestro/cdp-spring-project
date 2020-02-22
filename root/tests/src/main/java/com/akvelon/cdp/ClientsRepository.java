@@ -21,7 +21,7 @@ public class ClientsRepository {
 
     public static ClientsRepository getInstance() {
         if (clientsRepository == null) {
-            return new ClientsRepository();
+            clientsRepository = new ClientsRepository();
         }
         return clientsRepository;
     }
