@@ -7,9 +7,16 @@ public class TestDataProvider {
     public Object[][] urlsToRedirectAndNumbersOfRequest() {
         return new Object[][] {
                 {"google.com", 1},
-                {"habr.com/ru/", 2},
-                {"http://sinoptik.ua", 3},
-                {"https://rozetka.com.ua/", 4}
+                {"habr.com/ru/", 1},
+                {"http://sinoptik.ua", 1},
+                {"https://rozetka.com.ua/", 1}
+        };
+    }
+
+    @DataProvider
+    public Object[][] twoDifferentUrls() {
+        return new Object[][] {
+                {"http://google.com/", "https://dou.ua"},
         };
     }
 }

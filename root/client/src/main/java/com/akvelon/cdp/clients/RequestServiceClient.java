@@ -1,12 +1,16 @@
 package com.akvelon.cdp.clients;
 
 import com.akvelon.cdp.entitieslibrary.Request;
+import com.akvelon.cdp.exceptionslibrary.NotFoundException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,7 +35,7 @@ public class RequestServiceClient extends AbstractClient {
      * @param url - URL to redirect to
      * @return true is all required by services actions were successful
      */
-    public boolean redirectToSpecifiedUrlAndUpdateStatistic(final String url) {
+    public int redirectToSpecifiedUrlAndUpdateStatistic(final String url) {
         final String redirectUri = getServerAddress() + REDIRECT_URL;
         try {
             final URIBuilder uriBuilder = new URIBuilder(redirectUri);
@@ -39,15 +43,11 @@ public class RequestServiceClient extends AbstractClient {
 
             final HttpGet httpGet = new HttpGet(uriBuilder.build());
             val response = getHttpClient().execute(httpGet);
-            final int statusCode = response.getStatusLine().getStatusCode();
-
-            return statusCode >= 200 && statusCode < 300;
-
+            return response.getStatusLine().getStatusCode();
         } catch (IOException | URISyntaxException e) {
             log.error(ERROR_MESSAGE, e.getMessage());
         }
-
-        return false;
+        return 500;
     }
 
     /**

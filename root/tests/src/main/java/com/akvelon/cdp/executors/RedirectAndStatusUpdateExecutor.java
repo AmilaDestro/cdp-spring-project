@@ -4,28 +4,22 @@ import com.akvelon.cdp.clients.RequestServiceClient;
 import com.akvelon.cdp.clients.StatusServiceClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Timer;
-import java.util.TimerTask;
+import lombok.val;
 
 @Slf4j
 @AllArgsConstructor
-public class RedirectAndStatusUpdateExecutor {
-    private RequestServiceClient requestServiceClient;
-    private StatusServiceClient statusServiceClient;
+public class RedirectAndStatusUpdateExecutor extends AbstractActionExecutor {
+    private final RequestServiceClient requestServiceClient;
+    private final StatusServiceClient statusServiceClient;
 
-    public boolean redirectToSpecifiedUrlAndWaitForStatusUpdate(final String url) {
+    public void redirectToSpecifiedUrlAndWaitForStatusUpdate(final String url) {
         log.debug("Performing redirect to {} and waiting for status updates", url);
-        final boolean redirectSuccessful = requestServiceClient.redirectToSpecifiedUrlAndUpdateStatistic(url);
-        final Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (statusServiceClient.getStatus().getLastRequestUrl().contains(url)) {
-                    timer.cancel();
-                }
-            }
-        }, 0, 30000);
-        return redirectSuccessful;
+        final long currentRequestNumber = statusServiceClient.getStatus().getNumberOfRequest();
+        executeAndWait(
+                () -> requestServiceClient.redirectToSpecifiedUrlAndUpdateStatistic(url),
+                () -> {
+                    val status = statusServiceClient.getStatus();
+                    return status.getLastRequestUrl().contains(url) && status.getNumberOfRequest() > currentRequestNumber;
+                });
     }
 }
