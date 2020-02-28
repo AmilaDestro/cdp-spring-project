@@ -16,7 +16,7 @@ public class RedirectAndStatusUpdateExecutor extends AbstractActionExecutor {
         log.debug("Performing redirect to {} and waiting for status updates", url);
         final long currentRequestNumber = statusServiceClient.getStatus().getNumberOfRequest();
         executeAndWait(
-                () -> requestServiceClient.redirectToSpecifiedUrlAndUpdateStatistic(url),
+                () -> requestServiceClient.redirectToSpecifiedUrlUpdateStatisticAndReturnStatusCode(url),
                 () -> {
                     val status = statusServiceClient.getStatus();
                     return status.getLastRequestUrl().contains(url) && status.getNumberOfRequest() > currentRequestNumber;

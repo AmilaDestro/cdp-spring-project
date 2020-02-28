@@ -3,11 +3,11 @@ package com.akvelon.cdp.endpoints;
 import com.akvelon.cdp.entities.Request;
 import com.akvelon.cdp.exceptions.NotFoundException;
 import com.akvelon.cdp.exceptions.RequestNotFoundException;
+import com.akvelon.cdp.exceptions.WebPageNotFoundException;
 import com.akvelon.cdp.services.requests.RequestWithMetrics;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.codec.binary.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -17,6 +17,7 @@ import org.springframework.web.servlet.view.RedirectView;
 import java.util.List;
 
 import static com.akvelon.cdp.utils.UrlPatternsUtil.getHostWithProtocol;
+import static java.lang.String.format;
 import static org.springframework.web.bind.annotation.RequestMethod.DELETE;
 import static org.springframework.web.bind.annotation.RequestMethod.GET;
 
@@ -40,14 +41,24 @@ public class RequestController {
      * @return {@link RedirectView} which represents web page to which redirection was made
      */
     @RequestMapping(value = "/redirect", method = GET)
-    public RedirectView redirectToSpecifiedUrlAndUpdateStatistic(@RequestParam(value = "url") final String url) throws NotFoundException {
+    public RedirectView redirectToSpecifiedUrlAndUpdateStatistic(@RequestParam(value = "url") final String url) throws WebPageNotFoundException {
         if (url == null || url.isEmpty()) {
             return new RedirectView(APP_HOME_PAGE);
         }
 
         final String urlWithHttp = getHostWithProtocol(url);
-        requestService.createRequest(urlWithHttp);
-        return new RedirectView(urlWithHttp);
+        Request createdRequest = null;
+        try {
+            createdRequest = requestService.createRequest(urlWithHttp);
+        } catch (NotFoundException e) {
+            log.error(format("Error occurred during creation of request to URL {}", urlWithHttp));
+        }
+
+        if (createdRequest != null) {
+            return new RedirectView(urlWithHttp);
+        } else {
+            throw new WebPageNotFoundException(urlWithHttp);
+        }
     }
 
     /**

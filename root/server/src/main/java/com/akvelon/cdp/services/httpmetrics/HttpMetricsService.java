@@ -48,7 +48,7 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
         } catch (final IOException e) {
             log.error("Exception {} was caught during execution of request to URL {}",
                     e.getMessage(), url);
-            throw new NotFoundException(404, format("Web Page %s was not found", url));
+            throw new NotFoundException(format("Web Page %s was not found", url));
         }
     }
 

@@ -6,6 +6,6 @@ package com.akvelon.cdp.exceptions;
  */
 public class RequestNotFoundException extends NotFoundException {
     public RequestNotFoundException(final long requestId) {
-        super(404, String.format("Request entity with id %s was not found", requestId));
+        super(String.format("Request entity with id %s was not found", requestId));
     }
 }

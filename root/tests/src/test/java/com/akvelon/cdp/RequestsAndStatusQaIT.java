@@ -1,8 +1,9 @@
 package com.akvelon.cdp;
 
 import com.akvelon.cdp.data.TestDataProvider;
-import com.akvelon.cdp.exceptionslibrary.NotFoundException;
 import com.akvelon.cdp.executors.RedirectAndStatusUpdateExecutor;
+import com.akvelon.cdp.utils.ExceptionsUtil;
+import com.akvelon.cdp.utils.HttpResponseUtil;
 import com.akvelon.cdp.utils.RequestUtil;
 import lombok.val;
 import org.testng.annotations.AfterMethod;
@@ -16,11 +17,15 @@ import static java.lang.String.format;
 public class RequestsAndStatusQaIT extends QaBase {
     private final RedirectAndStatusUpdateExecutor redirectAndStatusUpdateExecutor;
     private final RequestUtil requestUtil;
+    private final HttpResponseUtil httpResponseUtil;
+    private final ExceptionsUtil exceptionUtils;
 
     public RequestsAndStatusQaIT() {
         redirectAndStatusUpdateExecutor =
                 new RedirectAndStatusUpdateExecutor(this.requestServiceClient, this.statusServiceClient);
         requestUtil = new RequestUtil(this.requestServiceClient);
+        httpResponseUtil = new HttpResponseUtil(this.requestServiceClient);
+        exceptionUtils = new ExceptionsUtil(this.requestServiceClient);
     }
 
     @AfterMethod(alwaysRun = true)
@@ -91,6 +96,10 @@ public class RequestsAndStatusQaIT extends QaBase {
     @Test
     public void test3RedirectToWrongUrlAndExpectError() {
         val wrongUrl = "nonExistingUrl";
-        requestServiceClient.redirectToSpecifiedUrlAndUpdateStatistic(wrongUrl);
+        val response = requestServiceClient.redirectToSpecifiedUrlUpdateStatisticAndReturnStatusCode(wrongUrl);
+        val serverErrorJson = httpResponseUtil.getExceptionInJsonResponse(response);
+        val exception = exceptionUtils.getExceptionFromJson(serverErrorJson);
+        softAssert.assertNotNull(exception);
+        softAssert.assertAll();
     }
 }

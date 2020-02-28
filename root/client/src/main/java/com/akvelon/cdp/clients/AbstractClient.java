@@ -61,7 +61,7 @@ public abstract class AbstractClient {
      * @return Object of specified type
      * @throws JsonProcessingException
      */
-    protected <T>T mapJsonToObject(final String json, final Class<T> type) throws JsonProcessingException {
+    public <T>T mapJsonToObject(final String json, final Class<T> type) throws JsonProcessingException {
         return objectMapper.readValue(json, type);
     }
 
