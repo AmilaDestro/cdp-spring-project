@@ -1,47 +1,28 @@
 package com.akvelon.cdp.utils;
 
+import static java.lang.String.format;
+
 import com.akvelon.cdp.clients.AbstractClient;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
-
-import java.io.IOException;
-import java.util.Optional;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.http.HttpStatus;
 
 @AllArgsConstructor
 @Slf4j
 public class HttpResponseUtil {
+
     private AbstractClient abstractClient;
 
-    public static boolean isSuccessfulResponse(final HttpResponse response) {
-        int code = getStatusCode(response);
-        return code >= 200 && code < 300;
+    public static boolean isSuccessfulResponse(final ContentResponse response) {
+        return getStatusCode(response) == HttpStatus.OK_200;
     }
 
-    public static int getStatusCode(final HttpResponse response) {
-        return response.getStatusLine().getStatusCode();
+    public static int getStatusCode(final ContentResponse response) {
+        return response.getStatus();
     }
 
-    public String getResponseEntityInJson(final HttpResponse response) {
-        return getResponseEntityInJsonSuppressException(response).orElseThrow();
-    }
-
-    public String getExceptionInJsonResponse(final HttpResponse response) {
-        if (getStatusCode(response) == 500) {
-            return getResponseEntityInJson(response);
-        }
-        throw new AssertionError("HTTP response has OK status");
-    }
-
-    private Optional<String> getResponseEntityInJsonSuppressException(final HttpResponse response) {
-        try {
-            val jsonEntity = EntityUtils.toString(response.getEntity());
-            return Optional.of(jsonEntity);
-        } catch (final IOException e) {
-            log.error("Entity couldn't be converted to JSON: {}", e.getMessage());
-        }
-        return Optional.empty();
+    public String getResponseEntityInJson(final ContentResponse response) {
+        return response.getContentAsString();
     }
 }

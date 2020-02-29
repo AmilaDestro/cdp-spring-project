@@ -2,8 +2,8 @@ package com.akvelon.cdp.services.requests;
 
 import com.akvelon.cdp.entities.Request;
 import com.akvelon.cdp.entities.RequestStatus;
-import com.akvelon.cdp.exceptions.NotFoundException;
 import com.akvelon.cdp.exceptions.RequestNotFoundException;
+import com.akvelon.cdp.exceptions.WebPageNotFoundException;
 import com.akvelon.cdp.persistence.RequestRepository;
 import com.akvelon.cdp.services.status.StatusService;
 import com.akvelon.cdp.services.httpmetrics.AbstractHttpMetricsService;
@@ -36,7 +36,7 @@ public class RequestService implements RequestWithMetrics {
      * {@inheritDoc}
      */
     @Override
-    public Pair<String, Double> sendGetRequestAndReturnPage(final String url) throws NotFoundException {
+    public Pair<String, Double> sendGetRequestAndReturnPage(final String url) {
         final String responseEntity = httpMetricsService.sendGetRequestAndCollectMetrics(url);
 
         createRequestRecordAndUpdateStatus(url,

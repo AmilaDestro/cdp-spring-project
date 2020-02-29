@@ -1,6 +1,6 @@
 package com.akvelon.cdp.services.httpmetrics;
 
-import com.akvelon.cdp.exceptions.NotFoundException;
+import com.akvelon.cdp.exceptions.WebPageNotFoundException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -58,7 +58,7 @@ public abstract class AbstractHttpMetricsService {
      *
      * @param url - URL to which the request is executed
      */
-    public abstract String sendGetRequestAndCollectMetrics(final String url) throws NotFoundException;
+    public abstract String sendGetRequestAndCollectMetrics(final String url);
 
     /**
      * Gets info about IP address for specified URL

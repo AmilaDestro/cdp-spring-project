@@ -1,7 +1,6 @@
 package com.akvelon.cdp.services.requests;
 
 import com.akvelon.cdp.entities.Request;
-import com.akvelon.cdp.exceptions.NotFoundException;
 import com.akvelon.cdp.exceptions.RequestNotFoundException;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
@@ -21,7 +20,7 @@ public interface RequestWithMetrics {
      * @param url - URL to which GET HTTP request is executed and for which metrics are collected
      * @return created {@link Pair} of response entity in string and its size in bytes
      */
-    Pair<String, Double> sendGetRequestAndReturnPage(final String url) throws NotFoundException;
+    Pair<String, Double> sendGetRequestAndReturnPage(final String url);
 
     /**
      * Deletes {@link Request} with the gived id

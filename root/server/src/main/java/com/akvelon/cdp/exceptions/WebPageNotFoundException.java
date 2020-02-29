@@ -1,7 +1,10 @@
 package com.akvelon.cdp.exceptions;
 
-public class WebPageNotFoundException extends NotFoundException {
+import static java.lang.String.format;
+
+public class WebPageNotFoundException extends RequestHandlingException {
+
     public WebPageNotFoundException(final String url) {
-        super(String.format("Wev Page was not found by URL %s", url));
+        super(404, format("Wev Page was not found by URL %s", url));
     }
 }

@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import com.akvelon.cdp.exceptions.NotFoundException;
 import com.akvelon.cdp.exceptions.WebPageNotFoundException;
 import com.akvelon.cdp.utils.UrlPatternsUtil;
 import com.google.common.collect.ImmutableMap;
@@ -17,7 +16,6 @@ import org.decimal4j.util.DoubleRounder;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
 import org.eclipse.jetty.http.HttpMethod;
-import org.eclipse.jetty.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -32,7 +30,7 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
      * {@inheritDoc}
      */
     @Override
-    public String sendGetRequestAndCollectMetrics(String url) throws NotFoundException {
+    public String sendGetRequestAndCollectMetrics(String url) {
         startHttpClient();
         final Request getRequest = httpClient.newRequest(url)
                                              .method(HttpMethod.GET)
@@ -42,10 +40,6 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
             final long startTime = System.currentTimeMillis();
             final ContentResponse response = getRequest.send();
             final long endTime = System.currentTimeMillis() - startTime;
-
-            if (response.getStatus() != HttpStatus.OK_200) {
-                throw new WebPageNotFoundException(url);
-            }
 
             requestDuration = DECIMAL_NUMBERS_ROUNDER.round(endTime / 1000D);
             log.debug("Request duration was {} seconds", requestDuration);
@@ -60,7 +54,7 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
             return response.getContentAsString();
         } catch (TimeoutException | ExecutionException | InterruptedException e) {
             log.error("Exception {} was thrown during execution of request to URL {}", e.getMessage(), url);
-            throw new RuntimeException();
+            throw new WebPageNotFoundException(url);
         } finally {
             stopHttpClient();
         }

@@ -1,25 +1,27 @@
 package com.akvelon.cdp.clients;
 
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.eclipse.jetty.http.HttpMethod.DELETE;
+import static org.eclipse.jetty.http.HttpMethod.GET;
+import static org.eclipse.jetty.http.HttpStatus.OK_200;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+
 import com.akvelon.cdp.entitieslibrary.Request;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
-
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import org.eclipse.jetty.client.api.ContentResponse;
 
 /**
  * Client for {@link Request} entity service
  */
 @Slf4j
 public class RequestServiceClient extends AbstractClient {
+
     private static final String REDIRECT_URL = "/redirect";
     private static final String REQUEST_BY_ID_URL = "/requests/%s";
     private static final String GET_ALL_REQUESTS_URL = "/requests";
@@ -32,20 +34,13 @@ public class RequestServiceClient extends AbstractClient {
      * @param url - URL to redirect to
      * @return true is all required by services actions were successful
      */
-    public CloseableHttpResponse redirectToSpecifiedUrlUpdateStatisticAndReturnStatusCode(final String url) {
+    public ContentResponse redirectToSpecifiedUrlUpdateStatistic(final String url) {
+        final String query = format("?url=%s", url);
         final String redirectUri = getServerAddress() + REDIRECT_URL;
-
-        try {
-            final URIBuilder uriBuilder = new URIBuilder(redirectUri);
-            uriBuilder.setParameter("url", url);
-
-            final HttpGet httpGet = new HttpGet(uriBuilder.build());
-            return getHttpClient().execute(httpGet);
-        } catch (IOException | URISyntaxException e) {
-            log.error(ERROR_MESSAGE, e.getMessage());
-        }
-
-        return null;
+        val redirectRequest = httpClient.newRequest(redirectUri + query)
+                                        .timeout(20, SECONDS)
+                                        .method(GET);
+        return executeHttpRequest(redirectRequest);
     }
 
     /**
@@ -55,19 +50,26 @@ public class RequestServiceClient extends AbstractClient {
      * @return found request
      */
     public Request getRequestById(final long requestId) {
-        final String requestByIdUri = getServerAddress() + String.format(REQUEST_BY_ID_URL, requestId);
-        final HttpGet httpGet = new HttpGet(requestByIdUri);
-        return getRequestSuppressExceptions(httpGet);
+        final String requestByIdUri = getServerAddress() + format(REQUEST_BY_ID_URL, requestId);
+        val getInternalRequest = httpClient.newRequest(requestByIdUri)
+                                           .method(GET)
+                                           .timeout(5, SECONDS);
+        val contentResponse = executeHttpRequest(getInternalRequest);
+        return mapJsonToObject(contentResponse.getContentAsString(), Request.class);
     }
 
     /**
      * Gets record about last made request
+     *
      * @return the last {@link Request}
      */
     public Request getLastRequest() {
         final String lastRequestUri = getServerAddress() + GET_LAST_REQUEST_URL;
-        final HttpGet httpGet = new HttpGet(lastRequestUri);
-        return getRequestSuppressExceptions(httpGet);
+        val getInternalRequest = httpClient.newRequest(lastRequestUri)
+                                           .method(GET)
+                                           .timeout(5, SECONDS);
+        val contentResponse = executeHttpRequest(getInternalRequest);
+        return mapJsonToObject(contentResponse.getContentAsString(), Request.class);
     }
 
     /**
@@ -77,15 +79,11 @@ public class RequestServiceClient extends AbstractClient {
      */
     public List<Request> getAllRequests() {
         final String getRequestsUri = getServerAddress() + GET_ALL_REQUESTS_URL;
-        final HttpGet httpGet = new HttpGet(getRequestsUri);
-        try {
-            val httpResponse = getHttpClient().execute(httpGet);
-            val jsonResponse = mapResponseToJson(httpResponse);
-            return mapJsonToRequestsList(jsonResponse);
-        } catch (IOException e) {
-            log.error(ERROR_MESSAGE, e.getMessage());
-        }
-        return Collections.emptyList();
+        val getInternalRequests = httpClient.newRequest(getRequestsUri)
+                                            .method(GET)
+                                            .timeout(10, SECONDS);
+        val contentResponse = executeHttpRequest(getInternalRequests);
+        return mapJsonToRequestsList(contentResponse.getContentAsString());
     }
 
     /**
@@ -95,15 +93,13 @@ public class RequestServiceClient extends AbstractClient {
      * @return true if request with the given id was deleted
      */
     public boolean deleteRequestById(final long requestId) {
-        final String deleteRequestUri = getServerAddress() + String.format(REQUEST_BY_ID_URL, requestId);
-        final HttpDelete httpDelete = new HttpDelete(deleteRequestUri);
-        try {
-            val response = httpClient.execute(httpDelete);
-            return Boolean.parseBoolean(mapResponseToJson(response));
-        } catch (IOException e) {
-            log.error(ERROR_MESSAGE, e.getMessage());
-        }
-        return false;
+        final String deleteRequestUri = getServerAddress() + format(REQUEST_BY_ID_URL, requestId);
+        val deleteRequest = httpClient.newRequest(deleteRequestUri)
+                                      .method(DELETE)
+                                      .timeout(5, SECONDS);
+        val contentResponse = executeHttpRequest(deleteRequest);
+        return contentResponse.getStatus() == OK_200 &&
+                Boolean.parseBoolean(contentResponse.getContentAsString());
     }
 
     /**
@@ -111,27 +107,14 @@ public class RequestServiceClient extends AbstractClient {
      *
      * @param json to process
      * @return {@link List<Request>}
-     * @throws JsonProcessingException
      */
-    private List<Request> mapJsonToRequestsList(final String json) throws JsonProcessingException {
-        final Request[] requestsArray = objectMapper.readValue(json, Request[].class);
-        return Arrays.asList(requestsArray);
-    }
-
-    /**
-     * Executes GET http request and returns {@link Request}
-     *
-     * @param httpGet - {@link HttpGet} to execute
-     * @return obtained Request entity
-     */
-    private Request getRequestSuppressExceptions(final HttpGet httpGet) {
+    private List<Request> mapJsonToRequestsList(final String json) {
         try {
-            val httpResponse = getHttpClient().execute(httpGet);
-            val jsonResponse = mapResponseToJson(httpResponse);
-            return mapJsonToObject(jsonResponse, Request.class);
-        } catch (IOException e) {
-            log.error(ERROR_MESSAGE, e.getMessage());
+            final Request[] requestsArray = objectMapper.readValue(json, Request[].class);
+            return Arrays.asList(requestsArray);
+        } catch (final JsonProcessingException e) {
+            log.error("Exception was thrown while mapping JSON {} to List<Request>:\n{}", json, e.getMessage());
         }
-        return null;
+        return Collections.emptyList();
     }
 }

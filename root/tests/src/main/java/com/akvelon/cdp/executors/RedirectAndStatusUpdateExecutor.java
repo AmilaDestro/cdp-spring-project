@@ -9,6 +9,7 @@ import lombok.val;
 @Slf4j
 @AllArgsConstructor
 public class RedirectAndStatusUpdateExecutor extends AbstractActionExecutor {
+
     private final RequestServiceClient requestServiceClient;
     private final StatusServiceClient statusServiceClient;
 
@@ -16,10 +17,11 @@ public class RedirectAndStatusUpdateExecutor extends AbstractActionExecutor {
         log.debug("Performing redirect to {} and waiting for status updates", url);
         final long currentRequestNumber = statusServiceClient.getStatus().getNumberOfRequest();
         executeAndWait(
-                () -> requestServiceClient.redirectToSpecifiedUrlUpdateStatisticAndReturnStatusCode(url),
+                () -> requestServiceClient.redirectToSpecifiedUrlUpdateStatistic(url),
                 () -> {
                     val status = statusServiceClient.getStatus();
-                    return status.getLastRequestUrl().contains(url) && status.getNumberOfRequest() > currentRequestNumber;
+                    return status.getLastRequestUrl().contains(url) &&
+                            status.getNumberOfRequest() > currentRequestNumber;
                 });
     }
 }

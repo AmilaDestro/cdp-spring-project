@@ -7,8 +7,6 @@ import static org.springframework.web.bind.annotation.RequestMethod.GET;
 import java.util.List;
 
 import com.akvelon.cdp.entities.Request;
-import com.akvelon.cdp.exceptions.NotFoundException;
-import com.akvelon.cdp.exceptions.RequestNotFoundException;
 import com.akvelon.cdp.services.requests.RequestWithMetrics;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -42,8 +40,7 @@ public class RequestController {
      * @return {@link Object} which represents html web page to which redirection was made
      */
     @RequestMapping(value = "/redirect", method = GET)
-    public Object redirectToSpecifiedUrlAndUpdateStatistic(@RequestParam(value = "url") final String url) throws
-            NotFoundException {
+    public Object redirectToSpecifiedUrlAndUpdateStatistic(@RequestParam(value = "url") final String url) {
         if (url == null || url.isEmpty()) {
             return requestService.sendGetRequestAndReturnPage(APP_HOME_PAGE).getFirst();
         }
@@ -61,10 +58,9 @@ public class RequestController {
      *
      * @param requestId of request entity to return
      * @return found {@link Request}
-     * @throws RequestNotFoundException if {@link Request} with the given id was not found
      */
     @RequestMapping(value = "/requests/{id}", method = GET)
-    public Request getRequestById(@PathVariable(name = "id") final long requestId) throws RequestNotFoundException {
+    public Request getRequestById(@PathVariable(name = "id") final long requestId) {
         return requestService.getInternalRequest(requestId);
     }
 
@@ -93,10 +89,9 @@ public class RequestController {
      *
      * @param requestId of request to delete
      * @return true if deletion was successful
-     * @throws RequestNotFoundException if request with the given id was not found
      */
     @RequestMapping(value = "/requests/{id}", method = DELETE)
-    public boolean deleteRequest(@PathVariable(name = "id") final long requestId) throws RequestNotFoundException {
+    public boolean deleteRequest(@PathVariable(name = "id") final long requestId) {
         return requestService.deleteInternalRequest(requestId);
     }
 }

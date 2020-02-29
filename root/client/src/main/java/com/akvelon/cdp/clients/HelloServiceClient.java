@@ -1,18 +1,19 @@
 package com.akvelon.cdp.clients;
 
-import lombok.extern.slf4j.Slf4j;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.utils.URIBuilder;
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.eclipse.jetty.http.HttpMethod.GET;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.client.api.Request;
 
 /**
  * Client for HelloController of server application
  */
 @Slf4j
 public class HelloServiceClient extends AbstractClient {
+
     private static final String HELLO_URL = "/hello";
 
     /**
@@ -20,21 +21,14 @@ public class HelloServiceClient extends AbstractClient {
      * or "Hello <name>" if name param was specified
      *
      * @param name - username of the user to say hello
-     * @return greeting {@link String}
+     * @return greeting {@link ContentResponse} with greeting string
      */
     public String greeting(final String name) {
-        final String helloUri = getServerAddress() + HELLO_URL;
-        try {
-            final URIBuilder uriBuilder = new URIBuilder(helloUri);
-            uriBuilder.setParameter("name", name);
-
-            final HttpGet httpGet = new HttpGet(uriBuilder.build());
-            final CloseableHttpResponse response = getHttpClient().execute(httpGet);
-
-            return mapResponseToJson(response);
-        } catch (IOException | URISyntaxException e) {
-            log.error(ERROR_MESSAGE, e.getMessage());
-        }
-        return null;
+        final String query = format("?name=%s", name);
+        final String helloUrl = getServerAddress() + HELLO_URL;
+        final Request getGreetingRequest = httpClient.newRequest(helloUrl + query)
+                                                     .method(GET)
+                                                     .timeout(10, SECONDS);
+        return executeHttpRequest(getGreetingRequest).getContentAsString();
     }
 }

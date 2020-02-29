@@ -8,7 +8,8 @@ import java.util.function.Supplier;
 
 @Slf4j
 public class AbstractActionExecutor {
-    public void executeAndWait(Runnable runnable, Supplier<Boolean> supplier) {
+
+    public void executeAndWait(final Runnable runnable, final Supplier<Boolean> supplier) {
         log.debug("Executing task");
         runnable.run();
         final Timer timer = new Timer();
