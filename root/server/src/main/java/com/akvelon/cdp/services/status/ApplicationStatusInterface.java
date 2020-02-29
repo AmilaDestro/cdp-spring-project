@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public interface ApplicationStatusInterface {
+
     /**
      * Gets the only {@link RequestStatus} record or creates one if it doesn't exist
      *
@@ -21,7 +22,7 @@ public interface ApplicationStatusInterface {
     /**
      * Updates status record with the new {@link Request}
      *
-     * @param statusId - id of {@link RequestStatus} entity that must be updated
+     * @param statusId       - id of {@link RequestStatus} entity that must be updated
      * @param createdRequest - newly created {@link Request} which is not present in status yet
      * @return updated status record with the last request
      */
@@ -29,6 +30,7 @@ public interface ApplicationStatusInterface {
 
     /**
      * Deletes existing {@link RequestStatus}
+     *
      * @return true if the record was deleted
      */
     boolean deleteStatus();

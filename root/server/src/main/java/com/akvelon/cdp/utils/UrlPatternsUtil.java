@@ -4,6 +4,7 @@ package com.akvelon.cdp.utils;
  * Contains util methods that allow to work with URL patterns
  */
 public class UrlPatternsUtil {
+
     private static final String HTTP_PREFIX = "http://";
     private static final String HTTPS_PREFIX = "https://";
     private static final String URI_DELIMITER = "/";
@@ -28,13 +29,13 @@ public class UrlPatternsUtil {
      *
      * @param url - passed URL String that is being processed
      * @return {@link String} that represents full URL which includes
-     *          http/https protocol + domain name to be followed in browser
+     * http/https protocol + domain name to be followed in browser
      */
     public static String getHostWithProtocol(final String url) {
         final String updatedUrl = url.toLowerCase().trim();
         if (updatedUrl.contains(HTTPS_PREFIX) || updatedUrl.contains(HTTP_PREFIX)) {
             return updatedUrl;
-        } else  {
+        } else {
             return HTTP_PREFIX + updatedUrl;
         }
     }

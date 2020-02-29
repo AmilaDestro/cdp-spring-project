@@ -15,22 +15,23 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 class GreetingServiceTests {
-	@MockBean
-	private GreetingController greetingController;
-	@MockBean
-	private GreetingService greetingService;
 
-	@Test
-	public void testGreetingMethod() {
-		val someUserName = "User";
-		List.of(EMPTY_STRING, someUserName)
-				.forEach(userName ->
-					when(greetingController.greeting(userName)).thenReturn(EMPTY_STRING));
-		verifyNoInteractions(greetingController);
-	}
+    @MockBean
+    private GreetingController greetingController;
+    @MockBean
+    private GreetingService greetingService;
 
-	@Test
-	public void testGreetingService() {
-		when(greetingService.sayHello(EMPTY_STRING)).thenReturn(EMPTY_STRING);
-	}
+    @Test
+    public void testGreetingMethod() {
+        val someUserName = "User";
+        List.of(EMPTY_STRING, someUserName)
+            .forEach(userName ->
+                             when(greetingController.greeting(userName)).thenReturn(EMPTY_STRING));
+        verifyNoInteractions(greetingController);
+    }
+
+    @Test
+    public void testGreetingService() {
+        when(greetingService.sayHello(EMPTY_STRING)).thenReturn(EMPTY_STRING);
+    }
 }

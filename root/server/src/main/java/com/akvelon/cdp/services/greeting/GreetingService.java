@@ -1,15 +1,16 @@
 package com.akvelon.cdp.services.greeting;
 
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
-import org.springframework.stereotype.Component;
+import static java.lang.String.format;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
-import static java.lang.String.format;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.springframework.stereotype.Component;
 
 /**
  * Service which says hello to a user
@@ -17,6 +18,7 @@ import static java.lang.String.format;
 @Component
 @Slf4j
 public class GreetingService implements GreetingInterface {
+
     private static final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor();
 
     /**
@@ -39,11 +41,11 @@ public class GreetingService implements GreetingInterface {
         final long startDelay = System.currentTimeMillis();
 
         try {
-            val greetingToReturn = executorService.schedule(() -> greeting(userToGreet), 10, TimeUnit.SECONDS).get();
+            val greetingToReturn = executorService.schedule(() -> greeting(userToGreet), 10, SECONDS).get();
 
             final long endDelay = System.currentTimeMillis() - startDelay;
             log.debug("Greeting to user {} was actually sent with delay: {} seconds", userToGreet,
-                    TimeUnit.MILLISECONDS.toSeconds(endDelay));
+                      MILLISECONDS.toSeconds(endDelay));
 
             return greetingToReturn;
 
@@ -54,7 +56,7 @@ public class GreetingService implements GreetingInterface {
 
         final long endDelay = System.currentTimeMillis() - startDelay;
         log.debug("Greeting to user {} was actually sent with delay: {} seconds", userToGreet,
-                   TimeUnit.MILLISECONDS.toSeconds(endDelay));
+                  MILLISECONDS.toSeconds(endDelay));
         return greeting(userToGreet);
     }
 

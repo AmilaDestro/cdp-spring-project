@@ -10,6 +10,7 @@ import com.akvelon.cdp.services.httpmetrics.AbstractHttpMetricsService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @Component
 public class RequestService implements RequestWithMetrics {
+
     @NonNull
     private RequestRepository requestRepository;
     @NonNull
@@ -34,21 +36,22 @@ public class RequestService implements RequestWithMetrics {
      * {@inheritDoc}
      */
     @Override
-    public Request createRequest(final String url) throws NotFoundException {
-        httpMetricsService.sendGetRequestAndCollectMetrics(url);
+    public Pair<String, Double> sendGetRequestAndReturnPage(final String url) throws NotFoundException {
+        final String responseEntity = httpMetricsService.sendGetRequestAndCollectMetrics(url);
 
-        return createRequestRecordAndUpdateStatus(url,
-                                                  httpMetricsService.getIpAddress(url),
-                                                  httpMetricsService.getRequestDuration(),
-                                                  httpMetricsService.getReceivedBytes(),
-                                                  httpMetricsService.getDataTransferSpeed());
+        createRequestRecordAndUpdateStatus(url,
+                                           httpMetricsService.getIpAddress(url),
+                                           httpMetricsService.getRequestDuration(),
+                                           httpMetricsService.getReceivedBytes(),
+                                           httpMetricsService.getDataTransferSpeed());
+        return Pair.of(responseEntity, httpMetricsService.getReceivedBytes());
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public boolean deleteRequest(final long requestId) throws RequestNotFoundException {
+    public boolean deleteInternalRequest(final long requestId) throws RequestNotFoundException {
         log.debug("Deleting request record with id {}", requestId);
         final Optional<Request> requestToDelete = requestRepository.findById(requestId);
         if (requestToDelete.isPresent()) {
@@ -64,16 +67,16 @@ public class RequestService implements RequestWithMetrics {
      * {@inheritDoc}
      */
     @Override
-    public Request getRequest(final long requestId) throws RequestNotFoundException {
+    public Request getInternalRequest(final long requestId) throws RequestNotFoundException {
         log.debug("Getting request record with id {}", requestId);
-         return requestRepository.findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
+        return requestRepository.findById(requestId).orElseThrow(() -> new RequestNotFoundException(requestId));
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Request getLastCreatedRequest() {
+    public Request getLastCreatedInternalRequest() {
         log.debug("Getting last request error");
         return requestRepository.getLastRequest();
     }
@@ -82,7 +85,7 @@ public class RequestService implements RequestWithMetrics {
      * {@inheritDoc}
      */
     @Override
-    public List<Request> getRequests() {
+    public List<Request> getInternalRequests() {
         log.debug("Getting all requests records");
         return requestRepository.findAll();
     }
@@ -90,31 +93,31 @@ public class RequestService implements RequestWithMetrics {
     /**
      * Creates a new {@link Request} with metrics and updates {@link RequestStatus}
      *
-     * @param url - URL to which request is executed
-     * @param ipAddress - IP address for specified URL
+     * @param url             - URL to which request is executed
+     * @param ipAddress       - IP address for specified URL
      * @param requestDuration - duration of request in seconds
-     * @param bytes - amount of received data during request in MBytes
-     * @param speed - speed of data transfer for the request in MB/sec
+     * @param bytes           - amount of received data during request in MBytes
+     * @param speed           - speed of data transfer for the request in MB/sec
      */
     private Request createRequestRecordAndUpdateStatus(final String url,
-                                                    final String ipAddress,
-                                                    final Double requestDuration,
-                                                    final Double bytes,
-                                                    final Double speed) {
+                                                       final String ipAddress,
+                                                       final Double requestDuration,
+                                                       final Double bytes,
+                                                       final Double speed) {
         final RequestStatus lastStatus = statusService.getOrCreateStatus();
 
         final Request requestToCreate = Request.builder()
-                .requestUrl(url)
-                .ipAddress(ipAddress)
-                .requestStatus(lastStatus)
-                .requestTime(LocalDateTime.now())
-                .requestDuration(requestDuration)
-                .sentBytes(bytes)
-                .speed(speed)
-                .build();
-        log.debug("Creating new request record {}", requestToCreate);
+                                               .requestUrl(url)
+                                               .ipAddress(ipAddress)
+                                               .requestStatus(lastStatus)
+                                               .requestTime(LocalDateTime.now())
+                                               .requestDuration(requestDuration)
+                                               .sentBytes(bytes)
+                                               .speed(speed)
+                                               .build();
+        log.debug("Creating new internal request record {}", requestToCreate);
         final Request createdRequest = requestRepository.save(requestToCreate);
-        log.debug("Created request record {}", createdRequest);
+        log.debug("Created internal request record {}", createdRequest);
         statusService.updateStatus(lastStatus.getId(), createdRequest);
 
         return createdRequest;
