@@ -1,45 +1,48 @@
 package com.akvelon.cdp.clients;
 
-import com.akvelon.cdp.entitieslibrary.RequestStatus;
-import lombok.val;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpGet;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.eclipse.jetty.http.HttpMethod.DELETE;
+import static org.eclipse.jetty.http.HttpMethod.GET;
 
-import java.io.IOException;
+import com.akvelon.cdp.entitieslibrary.RequestStatus;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.eclipse.jetty.http.HttpStatus;
 
 /**
  * Client for {@link RequestStatus}
  */
+@Slf4j
 public class StatusServiceClient extends AbstractClient {
+
     private static final String STATUS_URL = "/status";
 
     /**
      * Gets current {@link RequestStatus}
      *
      * @return actual status with all requests statistics
-     * @throws IOException if error occurs during GET request execution
      */
-    public RequestStatus getStatus() throws IOException {
-        final String statusUri = getServerAddress() + STATUS_URL;
-        final HttpGet httpGet = new HttpGet(statusUri);
-
-        val response = getHttpClient().execute(httpGet);
-        val jsonResponse = mapResponseToJson(response);
-
-        return mapJsonToObject(jsonResponse, RequestStatus.class);
+    public RequestStatus getStatus() {
+        final String statusUrl = getServerAddress() + STATUS_URL;
+        val getStatus = httpClient.newRequest(statusUrl)
+                                  .method(GET)
+                                  .timeout(5, SECONDS);
+        val contentResponse = executeHttpRequest(getStatus);
+        return mapJsonToObject(contentResponse.getContentAsString(), RequestStatus.class);
     }
 
     /**
      * Deletes existing {@link RequestStatus}
      *
      * @return true if status record was deleted
-     * @throws IOException if error occurs during DELETE request execution
      */
-    public boolean deleteStatus() throws IOException {
-        final String statusUri = getServerAddress() + STATUS_URL;
-        final HttpDelete httpDelete = new HttpDelete(statusUri);
-        val response = getHttpClient().execute(httpDelete);
-
-        return Boolean.parseBoolean(mapResponseToJson(response));
+    public boolean deleteStatus() {
+        final String statusUrl = getServerAddress() + STATUS_URL;
+        val deleteStatus = httpClient.newRequest(statusUrl)
+                                     .method(DELETE)
+                                     .timeout(5, SECONDS);
+        val contentResponse = executeHttpRequest(deleteStatus);
+        return contentResponse.getStatus() == HttpStatus.OK_200 &&
+                Boolean.parseBoolean(contentResponse.getContentAsString());
     }
 }

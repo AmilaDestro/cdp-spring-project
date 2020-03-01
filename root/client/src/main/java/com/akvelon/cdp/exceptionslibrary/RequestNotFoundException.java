@@ -1,8 +1,8 @@
-package com.akvelon.cdp.exceptions;
+package com.akvelon.cdp.exceptionslibrary;
 
 import static java.lang.String.format;
 
-import com.akvelon.cdp.entities.Request;
+import com.akvelon.cdp.entitieslibrary.Request;
 
 /**
  * This exceptions is thrown when attempt to get/delete {@link Request}

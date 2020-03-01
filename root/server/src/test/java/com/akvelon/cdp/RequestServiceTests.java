@@ -1,5 +1,13 @@
 package com.akvelon.cdp;
 
+import static com.akvelon.cdp.TestData.DEFAULT_ID;
+import static com.akvelon.cdp.TestData.EMPTY_STRING;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.List;
+
 import com.akvelon.cdp.endpoints.RequestController;
 import com.akvelon.cdp.entities.Request;
 import com.akvelon.cdp.exceptions.RequestNotFoundException;
@@ -8,18 +16,11 @@ import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.web.servlet.view.RedirectView;
-
-import java.util.List;
-
-import static com.akvelon.cdp.TestData.DEFAULT_ID;
-import static com.akvelon.cdp.TestData.EMPTY_STRING;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import org.springframework.data.util.Pair;
 
 @SpringBootTest
 public class RequestServiceTests {
+
     @MockBean
     private RequestController requestController;
     @MockBean
@@ -29,38 +30,38 @@ public class RequestServiceTests {
     @Test
     public void testRedirectSuccessful() {
         when(requestController.redirectToSpecifiedUrlAndUpdateStatistic(EMPTY_STRING))
-                .thenReturn(mock(RedirectView.class));
+                .thenReturn(mock(Object.class));
         verifyNoMoreInteractions(requestController);
     }
 
     @SneakyThrows
     @Test
     public void testRequestCreated() {
-        when(requestService.createRequest(EMPTY_STRING)).thenReturn(mock(Request.class));
+        when(requestService.sendGetRequestAndReturnPage(EMPTY_STRING)).thenReturn(mock(Pair.class));
     }
 
     @SneakyThrows
     @Test
     public void testGetRequest() {
-        when(requestService.getRequest(DEFAULT_ID))
+        when(requestService.getInternalRequest(DEFAULT_ID))
                 .thenReturn(mock(Request.class))
                 .thenThrow(RequestNotFoundException.class);
     }
 
     @Test
     public void testGetRequests() {
-        when(requestService.getRequests()).thenReturn(List.of());
+        when(requestService.getInternalRequests()).thenReturn(List.of());
     }
 
     @Test
     public void testGetLastRequest() {
-        when(requestService.getLastCreatedRequest()).thenReturn(mock(Request.class));
+        when(requestService.getLastCreatedInternalRequest()).thenReturn(mock(Request.class));
     }
 
     @SneakyThrows
     @Test
     public void testDeleteRequest() {
-        when(requestService.deleteRequest(DEFAULT_ID))
+        when(requestService.deleteInternalRequest(DEFAULT_ID))
                 .thenReturn(true)
                 .thenThrow(RequestNotFoundException.class);
     }

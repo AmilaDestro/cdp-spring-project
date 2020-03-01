@@ -15,6 +15,7 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class StatusService implements ApplicationStatusInterface {
+
     @NonNull
     private RequestStatusRepository statusRepository;
 
@@ -28,9 +29,9 @@ public class StatusService implements ApplicationStatusInterface {
         if (statusSearch.isEmpty()) {
             log.debug("Status record was not found - creating a new one");
             final RequestStatus statusToCreate = RequestStatus.builder()
-                    .numberOfRequest(0)
-                    .fullStatistic(new ArrayList<>())
-                    .build();
+                                                              .numberOfRequest(0)
+                                                              .fullStatistic(new ArrayList<>())
+                                                              .build();
             final RequestStatus createdStatus = statusRepository.save(statusToCreate);
             log.debug("Status record was created: {}", createdStatus);
             return createdStatus;

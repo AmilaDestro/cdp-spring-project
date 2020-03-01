@@ -6,6 +6,8 @@ root/server/logs/
 root/server/.idea/
 root/server/.mvn/
 root/server/target/
+root/client/target/
+root/tests/target
 #!.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**
 !**/src/test/**

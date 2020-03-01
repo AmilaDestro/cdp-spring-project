@@ -1,0 +1,13 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="all-services-test-suite" verbose="1" >
+    <test name="greeting-service" >
+        <classes>
+            <class name="com.akvelon.cdp.HelloServiceQaIT"/>
+        </classes>
+    </test>
+    <test name="request-and-status-service-combined">
+        <classes>
+            <class name="com.akvelon.cdp.RequestsAndStatusQaIT"/>
+        </classes>
+    </test>
+</suite>

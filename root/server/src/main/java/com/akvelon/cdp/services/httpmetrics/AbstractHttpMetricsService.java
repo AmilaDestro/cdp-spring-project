@@ -1,11 +1,12 @@
 package com.akvelon.cdp.services.httpmetrics;
 
-import com.akvelon.cdp.exceptions.NotFoundException;
+import com.akvelon.cdp.exceptions.WebPageNotFoundException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
+import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jetty.client.HttpClient;
+import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -15,14 +16,44 @@ import org.springframework.stereotype.Component;
 @EqualsAndHashCode
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public abstract class AbstractHttpMetricsService {
-    protected final CloseableHttpClient httpClient;
+
+    protected final HttpClient httpClient;
     protected double receivedBytes;
     protected double requestDuration;
     protected double dataTransferSpeed;
 
     public AbstractHttpMetricsService() {
-        this.httpClient = HttpClients.createDefault();
+        final SslContextFactory sslContextFactory = new SslContextFactory.Client();
+        httpClient = new HttpClient(sslContextFactory);
+        httpClient.setConnectTimeout(10000);
+    }
+
+    /**
+     * Starts {@link HttpClient}
+     */
+    protected void startHttpClient() {
+        try {
+            if (httpClient.isStopped()) {
+                httpClient.start();
+            }
+        } catch (final Exception e) {
+            log.error("Http client start failed");
+        }
+    }
+
+    /**
+     * Stops {@link HttpClient}
+     */
+    protected void stopHttpClient() {
+        try {
+            if (httpClient.isRunning()) {
+                httpClient.stop();
+            }
+        } catch (final Exception e) {
+            log.error("Http client stop failed");
+        }
     }
 
     /**
@@ -31,7 +62,7 @@ public abstract class AbstractHttpMetricsService {
      *
      * @param url - URL to which the request is executed
      */
-    public abstract void sendGetRequestAndCollectMetrics(final String url) throws NotFoundException;
+    public abstract String sendGetRequestAndCollectMetrics(final String url);
 
     /**
      * Gets info about IP address for specified URL

@@ -1,21 +1,21 @@
 package com.akvelon.cdp;
 
-import com.akvelon.cdp.endpoints.RequestStatusController;
-import com.akvelon.cdp.entities.Request;
-import com.akvelon.cdp.entities.RequestStatus;
-import com.akvelon.cdp.services.status.StatusService;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-
 import static com.akvelon.cdp.TestData.DEFAULT_ID;
 import static com.akvelon.cdp.TestData.REQUEST_ENTITY;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import com.akvelon.cdp.endpoints.RequestStatusController;
+import com.akvelon.cdp.entities.RequestStatus;
+import com.akvelon.cdp.services.status.StatusService;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+
 @SpringBootTest
 public class RequestStatusServiceTests {
+
     @MockBean
     private RequestStatusController statusController;
     @MockBean

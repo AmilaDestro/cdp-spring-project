@@ -4,6 +4,7 @@ package com.akvelon.cdp.services.greeting;
  * Simple interface which contains only standard "Hello, World!" functionality
  */
 public interface GreetingInterface {
+
     /**
      * Returns "Hello, <userName>!" or "Hello, World!" String
      * if userName wasn't specified
