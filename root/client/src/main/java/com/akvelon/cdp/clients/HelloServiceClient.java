@@ -28,7 +28,7 @@ public class HelloServiceClient extends AbstractClient {
         final String helloUrl = getServerAddress() + HELLO_URL;
         final Request getGreetingRequest = httpClient.newRequest(helloUrl + query)
                                                      .method(GET)
-                                                     .timeout(10, SECONDS);
+                                                     .timeout(25, SECONDS);
         return executeHttpRequest(getGreetingRequest).getContentAsString();
     }
 }

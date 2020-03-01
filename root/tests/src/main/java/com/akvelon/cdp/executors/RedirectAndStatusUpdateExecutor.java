@@ -2,7 +2,7 @@ package com.akvelon.cdp.executors;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-import java.util.concurrent.TimeUnit;
+import java.util.Objects;
 
 import com.akvelon.cdp.clients.RequestServiceClient;
 import com.akvelon.cdp.clients.StatusServiceClient;
@@ -25,14 +25,15 @@ public class RedirectAndStatusUpdateExecutor extends AbstractActionExecutor {
                 () -> requestServiceClient.redirectToSpecifiedUrlUpdateStatistic(url),
                 () -> {
                     val status = statusServiceClient.getStatus();
-                    return status.getLastRequestUrl().contains(url) &&
-                            status.getNumberOfRequest() - currentRequestNumber == 1;
+                    return Objects.nonNull(status) && Objects.nonNull(status.getLastRequestUrl())
+                            && status.getLastRequestUrl().contains(url)
+                            && status.getNumberOfRequest() - currentRequestNumber == 1;
                 });
     }
 
     public ContentResponse redirectToSpecifiedUrlAndWaitResponseIsSuccessful(final String url) {
         log.debug("Performing redirect to {} and waiting for response is OK", url);
-        val response =  executeTaskAndWaitForResponse(
+        val response = executeTaskAndWaitForResponse(
                 () -> requestServiceClient.redirectToSpecifiedUrlUpdateStatistic(url), 20, SECONDS);
         return (ContentResponse) response;
     }

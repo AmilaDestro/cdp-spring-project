@@ -48,7 +48,6 @@ public abstract class QaBase {
         helloServiceClient.startHttpClient();
     }
 
-
     public void stopClients() {
         requestServiceClient.stopHttpClient();
         statusServiceClient.stopHttpClient();

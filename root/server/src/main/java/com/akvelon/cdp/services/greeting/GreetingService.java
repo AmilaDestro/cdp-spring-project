@@ -41,7 +41,7 @@ public class GreetingService implements GreetingInterface {
         final long startDelay = System.currentTimeMillis();
 
         try {
-            val greetingToReturn = executorService.schedule(() -> greeting(userToGreet), 10, SECONDS).get();
+            val greetingToReturn = executorService.schedule(() -> greeting(userToGreet.trim()), 10, SECONDS).get();
 
             final long endDelay = System.currentTimeMillis() - startDelay;
             log.debug("Greeting to user {} was actually sent with delay: {} seconds", userToGreet,
@@ -66,7 +66,10 @@ public class GreetingService implements GreetingInterface {
      * @param userName of user
      * @return {@link String}
      */
-    private String greeting(final String userName) {
+    private String greeting(String userName) {
+        if (userName == null || userName.isBlank()) {
+            userName = "World";
+        }
         return format("Hello %s", userName);
     }
 }

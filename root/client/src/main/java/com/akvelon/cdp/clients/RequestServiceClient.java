@@ -15,6 +15,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.eclipse.jetty.client.api.ContentResponse;
+import org.eclipse.jetty.http.HttpStatus;
 
 /**
  * Client for {@link Request} entity service
@@ -49,13 +50,12 @@ public class RequestServiceClient extends AbstractClient {
      * @param requestId of request entity that must be returned
      * @return found request
      */
-    public Request getRequestById(final long requestId) {
+    public ContentResponse getRequestById(final long requestId) {
         final String requestByIdUri = getServerAddress() + format(REQUEST_BY_ID_URL, requestId);
         val getInternalRequest = httpClient.newRequest(requestByIdUri)
                                            .method(GET)
                                            .timeout(5, SECONDS);
-        val contentResponse = executeHttpRequest(getInternalRequest);
-        return mapJsonToObject(contentResponse.getContentAsString(), Request.class);
+        return executeHttpRequest(getInternalRequest);
     }
 
     /**

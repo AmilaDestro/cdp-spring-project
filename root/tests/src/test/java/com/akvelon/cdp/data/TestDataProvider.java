@@ -26,4 +26,19 @@ public class TestDataProvider {
                 {"http://localhost:8081/hello"}
         };
     }
+
+    @DataProvider
+    public Object[][] singleUrl() {
+        return new Object[][] {
+                {"https://start.spring.io/"}
+        };
+    }
+
+    @DataProvider
+    public Object[][] usersAndExpectedHelloMessage() {
+        return new Object[][] {
+                {"", "Hello World"},
+                {"Liudmila", "Hello Liudmila"},
+        };
+    }
 }
