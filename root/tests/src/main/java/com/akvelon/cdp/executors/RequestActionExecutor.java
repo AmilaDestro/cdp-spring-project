@@ -18,7 +18,7 @@ public class RequestActionExecutor extends AbstractActionExecutor {
 
     public void deleteRequestAndWaitItIsAbsentInDb(final long requestId) {
         log.debug("Deleting Request {} and waiting for it to be absent in database", requestId);
-        executeAndWait(
+        executeTaskAndWaitForConditionSuccess(
                 () -> requestServiceClient.deleteRequestById(requestId),
                 () -> !getRequestIds().contains(requestId) && !getStatusFullStatisticRequestIds().contains(requestId));
     }

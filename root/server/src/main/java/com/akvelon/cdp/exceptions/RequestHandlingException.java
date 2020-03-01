@@ -4,6 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+/**
+ * Basic exception class that will be extended by other exceptions in this application
+ *
+ */
 @EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor

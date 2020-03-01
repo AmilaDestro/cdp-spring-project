@@ -6,6 +6,7 @@ import com.akvelon.cdp.utils.ServerExceptionsUtil;
 import com.akvelon.cdp.utils.HttpResponseUtil;
 import com.akvelon.cdp.utils.RequestUtil;
 import lombok.val;
+import org.eclipse.jetty.http.HttpStatus;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
@@ -34,7 +35,7 @@ public class RequestsAndStatusQaIT extends QaBase {
     }
 
     @Test
-    public void test0GetEmptyStatusRecordWhenNoRequestsPerformed() {
+    public void getEmptyStatusRecordWhenNoRequestsPerformed() {
         val status = statusServiceClient.getStatus();
         softAssert.assertNotNull(status, "Returned Status entity is null");
         softAssert.assertEquals(status.getNumberOfRequest(), 0,
@@ -45,8 +46,8 @@ public class RequestsAndStatusQaIT extends QaBase {
     }
 
     @Test(dataProviderClass = TestDataProvider.class, dataProvider = "urlsToRedirectAndNumbersOfRequest")
-    public void test1RedirectToSpecifiedUrlAndCheckStatus(final String url,
-                                                          final int expectedRequestNumber) {
+    public void redirectToSpecifiedUrlAndCheckStatusIsUpdated(final String url,
+                                                              final int expectedRequestNumber) {
         redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(url);
 
         val currentStatus = statusServiceClient.getStatus();
@@ -70,8 +71,8 @@ public class RequestsAndStatusQaIT extends QaBase {
     }
 
     @Test(dataProviderClass = TestDataProvider.class, dataProvider = "twoDifferentUrls")
-    public void test2Perform2RedirectsAndCheckStatistics(final String firstUrl,
-                                                         final String secondUrl) {
+    public void checkStatusWithFullStatisticsIsUpdatedAfterEachRedirect(final String firstUrl,
+                                                                        final String secondUrl) {
         redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(firstUrl);
         redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(secondUrl);
 
@@ -94,12 +95,51 @@ public class RequestsAndStatusQaIT extends QaBase {
     }
 
     @Test
-    public void test3RedirectToWrongUrlAndExpectError() {
+    public void redirectToWrongUrlAndExpectNotFoundError() {
+        val lastStatus = statusServiceClient.getStatus();
+        val lastRequestNumber = lastStatus.getNumberOfRequest();
+        val lastUrl = lastStatus.getLastRequestUrl();
+
         val wrongUrl = "nonExistingUrl";
         val response = requestServiceClient.redirectToSpecifiedUrlUpdateStatistic(wrongUrl);
-        val serverErrorJson = httpResponseUtil.getResponseEntityInJson(response);
-//        val exception = exceptionUtils.getThrownExceptionFromJsonResponse(serverErrorJson);
-//        softAssert.assertNotNull(exception);
-//        softAssert.assertAll();
+        val actualResponseStatus = response.getStatus();
+        softAssert.assertEquals(actualResponseStatus, HttpStatus.NOT_FOUND_404,
+                                format("Expected response status - %s but was - %s",
+                                       HttpStatus.NOT_FOUND_404,
+                                       actualResponseStatus));
+
+        val statusAfterRedirectToWrongUrl = statusServiceClient.getStatus();
+        softAssert.assertEquals(statusAfterRedirectToWrongUrl.getLastRequestUrl(),
+                                lastUrl,
+                                "Status last URL was updated but shouldn't");
+        softAssert.assertEquals(statusAfterRedirectToWrongUrl.getNumberOfRequest(),
+                                lastRequestNumber,
+                                "Status number of request was updated but shouldn't");
+        softAssert.assertAll();
+    }
+
+    @Test(dataProvider = "applicationHomePageUrl", dataProviderClass = TestDataProvider.class)
+    public void performRedirectWithoutSpecifyingUrlParamAndCheckAppHomePageIsReturned(final String expectedUrl) {
+        val statusBeforeCall = statusServiceClient.getStatus();
+        val previousNumberOfRequest = statusBeforeCall.getNumberOfRequest();
+
+        val response = redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitResponseIsSuccessful("");
+        val statusCode = response.getStatus();
+        softAssert.assertEquals(statusCode, HttpStatus.OK_200,
+                                format("Expected status code after redirect without URL specification is %s but " +
+                                               "actually was %s",
+                                       HttpStatus.OK_200,
+                                       statusCode));
+
+        val updatedStatus = statusServiceClient.getStatus();
+        val updatedNumberOfRequest = updatedStatus.getNumberOfRequest();
+        val updatedLastUrl = updatedStatus.getLastRequestUrl();
+        softAssert.assertNotEquals(updatedNumberOfRequest, previousNumberOfRequest,
+                                   "Number of request wasn't changed but expected");
+        softAssert.assertEquals(updatedNumberOfRequest - previousNumberOfRequest, 1,
+                                "Number of request should have been changed by 1");
+        softAssert.assertEquals(updatedLastUrl, expectedUrl,
+                                format("Expected last URL - %s, actual - %s", expectedUrl, updatedLastUrl));
+        softAssert.assertAll();
     }
 }

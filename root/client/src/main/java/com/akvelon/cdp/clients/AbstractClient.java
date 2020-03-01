@@ -1,12 +1,11 @@
 package com.akvelon.cdp.clients;
 
 import static java.lang.String.format;
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -58,8 +57,7 @@ public abstract class AbstractClient {
      * @return {@link ContentResponse}
      */
     protected ContentResponse executeHttpRequest(final Request request) {
-        startHttpClient();
-        FutureResponseListener responseListener = new FutureResponseListener(request);
+        final FutureResponseListener responseListener = new FutureResponseListener(request);
         request.send(responseListener);
         try {
             return responseListener.get(20, SECONDS);
@@ -106,9 +104,11 @@ public abstract class AbstractClient {
     /**
      * Starts {@link HttpClient}
      */
-    private void startHttpClient() {
+    public void startHttpClient() {
         try {
-            httpClient.start();
+            if (httpClient.isStopped()) {
+                httpClient.start();
+            }
         } catch (final Exception e) {
             log.error("Http client start failed");
         }
@@ -117,9 +117,11 @@ public abstract class AbstractClient {
     /**
      * Stops {@link HttpClient}
      */
-    private void stopHttpClient() {
+    public void stopHttpClient() {
         try {
-            httpClient.stop();
+            if (httpClient.isRunning()) {
+                httpClient.stop();
+            }
         } catch (final Exception e) {
             log.error("Http client stop failed");
         }

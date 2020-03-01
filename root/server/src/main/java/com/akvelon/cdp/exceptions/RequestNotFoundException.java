@@ -2,8 +2,10 @@ package com.akvelon.cdp.exceptions;
 
 import static java.lang.String.format;
 
+import com.akvelon.cdp.entities.Request;
+
 /**
- * This exceptions is thrown when attempt to get/delete {@link com.akvelon.cdp.entities.Request}
+ * This exceptions is thrown when attempt to get/delete {@link Request}
  * is made
  */
 public class RequestNotFoundException extends RequestHandlingException {

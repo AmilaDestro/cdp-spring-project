@@ -19,4 +19,11 @@ public class TestDataProvider {
                 {"http://google.com/", "https://dou.ua"},
         };
     }
+
+    @DataProvider
+    public Object[][] applicationHomePageUrl() {
+        return new Object[][] {
+                {"http://localhost:8081/hello"}
+        };
+    }
 }

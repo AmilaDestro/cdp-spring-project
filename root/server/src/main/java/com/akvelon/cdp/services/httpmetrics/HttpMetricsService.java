@@ -1,5 +1,7 @@
 package com.akvelon.cdp.services.httpmetrics;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -15,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.decimal4j.util.DoubleRounder;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.client.api.Request;
+import org.eclipse.jetty.client.util.FutureResponseListener;
 import org.eclipse.jetty.http.HttpMethod;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +41,7 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
         try {
             log.debug("Executing GET request to URL {}", url);
             final long startTime = System.currentTimeMillis();
-            final ContentResponse response = getRequest.send();
+            final ContentResponse response = sendRequest(getRequest, new WebPageNotFoundException(url));
             final long endTime = System.currentTimeMillis() - startTime;
 
             requestDuration = DECIMAL_NUMBERS_ROUNDER.round(endTime / 1000D);
@@ -52,9 +55,6 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
             log.debug("Speed: {} bytes/sec", dataTransferSpeed);
 
             return response.getContentAsString();
-        } catch (TimeoutException | ExecutionException | InterruptedException e) {
-            log.error("Exception {} was thrown during execution of request to URL {}", e.getMessage(), url);
-            throw new WebPageNotFoundException(url);
         } finally {
             stopHttpClient();
         }
@@ -99,5 +99,24 @@ public class HttpMetricsService extends AbstractHttpMetricsService {
      */
     private double calculateDataTransferSpeed(final double requestDurationInSeconds, final double sentBytes) {
         return DECIMAL_NUMBERS_ROUNDER.round(sentBytes / requestDurationInSeconds);
+    }
+
+    /**
+     * Sends given HTTP request and returns response
+     *
+     * @param request to send
+     * @param exceptionToThrowIfFails - exceptions that will be thrown if request execution fails
+     * @return {@link ContentResponse}
+     */
+    private ContentResponse sendRequest(final Request request, final RuntimeException exceptionToThrowIfFails) {
+        final FutureResponseListener responseListener = new FutureResponseListener(request);
+        request.send(responseListener);
+        try {
+            return responseListener.get(20, SECONDS);
+        } catch (final InterruptedException | ExecutionException | TimeoutException e) {
+            log.error("Exception was thrown during execution of request {} {}:\n{}",
+                      request.getMethod(), request.getURI(), e.getMessage());
+            throw exceptionToThrowIfFails;
+        }
     }
 }

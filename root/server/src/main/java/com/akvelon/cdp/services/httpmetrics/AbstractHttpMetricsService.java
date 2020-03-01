@@ -35,7 +35,9 @@ public abstract class AbstractHttpMetricsService {
      */
     protected void startHttpClient() {
         try {
-            httpClient.start();
+            if (httpClient.isStopped()) {
+                httpClient.start();
+            }
         } catch (final Exception e) {
             log.error("Http client start failed");
         }
@@ -46,7 +48,9 @@ public abstract class AbstractHttpMetricsService {
      */
     protected void stopHttpClient() {
         try {
-            httpClient.stop();
+            if (httpClient.isRunning()) {
+                httpClient.stop();
+            }
         } catch (final Exception e) {
             log.error("Http client stop failed");
         }
