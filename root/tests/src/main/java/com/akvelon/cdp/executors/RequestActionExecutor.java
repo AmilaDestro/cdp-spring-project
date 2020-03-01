@@ -9,6 +9,10 @@ import com.akvelon.cdp.entitieslibrary.Request;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * Contains methods to work with updates of {@link Request} entity
+ */
+
 @Slf4j
 @AllArgsConstructor
 public class RequestActionExecutor extends AbstractActionExecutor {
@@ -16,6 +20,11 @@ public class RequestActionExecutor extends AbstractActionExecutor {
     private final RequestServiceClient requestServiceClient;
     private final StatusServiceClient statusServiceClient;
 
+    /**
+     * Deletes {@link Request} by specified id and waits for updates in database
+     *
+     * @param requestId of internal request to delete
+     */
     public void deleteRequestAndWaitItIsAbsentInDb(final long requestId) {
         log.debug("Deleting Request {} and waiting for it to be absent in database", requestId);
         executeTaskAndWaitForConditionSuccess(

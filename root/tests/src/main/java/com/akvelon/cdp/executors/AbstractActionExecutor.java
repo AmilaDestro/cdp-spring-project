@@ -13,9 +13,19 @@ import java.util.function.Supplier;
 
 import lombok.extern.slf4j.Slf4j;
 
+/**
+ * This class contains methods capable to execute tasks with timeout and wait for some condition
+ */
 @Slf4j
 public class AbstractActionExecutor {
 
+    /**
+     * Executes specified task from {@link Runnable} and waits until supplied condition is fullfilled
+     * or ends wait if timeout is reached
+     *
+     * @param runnable  - task to execute
+     * @param condition - {@link Supplier<Boolean>} with condition that indicates that wait can be interrupted
+     */
     public void executeTaskAndWaitForConditionSuccess(final Runnable runnable, final Supplier<Boolean> condition) {
         log.debug("Executing task");
         runnable.run();
@@ -31,6 +41,14 @@ public class AbstractActionExecutor {
         }, 2000, 15000);
     }
 
+    /**
+     * Executes task andwaits for response during specified period of time
+     *
+     * @param task     - to execute
+     * @param timeOut  - during which response is being waited
+     * @param timeUnit - {@link TimeUnit} to wait
+     * @return object from received response
+     */
     public Object executeTaskAndWaitForResponse(final Supplier<Object> task,
                                                 final int timeOut,
                                                 final TimeUnit timeUnit) {
