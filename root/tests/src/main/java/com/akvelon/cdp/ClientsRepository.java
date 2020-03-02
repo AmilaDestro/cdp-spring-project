@@ -5,6 +5,9 @@ import com.akvelon.cdp.clients.RequestServiceClient;
 import com.akvelon.cdp.clients.StatusServiceClient;
 import lombok.Getter;
 
+/**
+ * Allows to initiate all necessary application http clients
+ */
 @Getter
 public class ClientsRepository {
     private static ClientsRepository clientsRepository;

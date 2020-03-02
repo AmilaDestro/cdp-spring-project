@@ -45,7 +45,8 @@ public class RequestController {
             return requestService.sendGetRequestAndReturnPage(APP_HOME_PAGE).getFirst();
         }
 
-        final String urlWithHttp = getHostWithProtocol(url);
+        final String updatedUrl = url.toLowerCase().trim();
+        final String urlWithHttp = getHostWithProtocol(updatedUrl);
         final Pair<String, Double> responsePair = requestService.sendGetRequestAndReturnPage(urlWithHttp);
         if (responsePair.getSecond() > BYTES_LIMIT_100K) {
             return new RedirectView(urlWithHttp);

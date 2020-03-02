@@ -7,6 +7,9 @@ import com.akvelon.cdp.executors.GreetingActionExecutor;
 import lombok.val;
 import org.testng.annotations.Test;
 
+/**
+ * Contains tests related to Greeting Service of the server application
+ */
 public class HelloServiceQaIT extends QaBase {
 
     private final GreetingActionExecutor greetingActionExecutor;

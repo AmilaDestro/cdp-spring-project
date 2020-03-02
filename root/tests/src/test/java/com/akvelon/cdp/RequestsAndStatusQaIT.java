@@ -1,37 +1,36 @@
 package com.akvelon.cdp;
 
+import static com.akvelon.cdp.utils.RequestUtil.getRequestUrlSkipProtocol;
+import static java.lang.String.format;
+
+import java.util.List;
+
 import com.akvelon.cdp.data.TestDataProvider;
+import com.akvelon.cdp.entitieslibrary.Request;
+import com.akvelon.cdp.entitieslibrary.RequestStatus;
 import com.akvelon.cdp.executors.RedirectAndStatusUpdateExecutor;
-import com.akvelon.cdp.utils.ServerExceptionsUtil;
-import com.akvelon.cdp.utils.HttpResponseUtil;
 import com.akvelon.cdp.utils.RequestUtil;
 import com.google.common.collect.Iterables;
 import lombok.val;
 import org.eclipse.jetty.http.HttpStatus;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
-import org.testng.collections.CollectionUtils;
 
-import java.util.List;
-
-import static com.akvelon.cdp.utils.RequestUtil.getLastRequestUrlSkipProtocol;
-import static java.lang.String.format;
-
+/**
+ * Contains tests related to {@link Request} and {@link RequestStatus} entities
+ * located at Request and Status services of the server application
+ */
 public class RequestsAndStatusQaIT extends QaBase {
 
     private final static long NON_EXISTING_REQUEST_ID = 0;
 
     private final RedirectAndStatusUpdateExecutor redirectAndStatusUpdateExecutor;
     private final RequestUtil requestUtil;
-    private final HttpResponseUtil httpResponseUtil;
-    private final ServerExceptionsUtil exceptionUtils;
 
     public RequestsAndStatusQaIT() {
         redirectAndStatusUpdateExecutor =
                 new RedirectAndStatusUpdateExecutor(this.requestServiceClient, this.statusServiceClient);
         requestUtil = new RequestUtil(this.requestServiceClient);
-        httpResponseUtil = new HttpResponseUtil(this.requestServiceClient);
-        exceptionUtils = new ServerExceptionsUtil();
     }
 
     @AfterMethod(alwaysRun = true)
@@ -56,8 +55,8 @@ public class RequestsAndStatusQaIT extends QaBase {
         redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(url);
 
         val currentStatus = statusServiceClient.getStatus();
-        val expectedUrl = getLastRequestUrlSkipProtocol(url);
-        val actualUrl = getLastRequestUrlSkipProtocol(currentStatus.getLastRequestUrl());
+        val expectedUrl = getRequestUrlSkipProtocol(url);
+        val actualUrl = getRequestUrlSkipProtocol(currentStatus.getLastRequestUrl());
         softAssert.assertEquals(actualUrl, expectedUrl,
                                 format("Last visited website was not %s", url));
 
@@ -83,8 +82,8 @@ public class RequestsAndStatusQaIT extends QaBase {
         redirectAndStatusUpdateExecutor.redirectToSpecifiedUrlAndWaitForStatusUpdate(secondUrl);
 
         val status = statusServiceClient.getStatus();
-        val actualLastUrl = getLastRequestUrlSkipProtocol(status.getLastRequestUrl());
-        val expectedLastUrl = getLastRequestUrlSkipProtocol(secondUrl);
+        val actualLastUrl = getRequestUrlSkipProtocol(status.getLastRequestUrl());
+        val expectedLastUrl = getRequestUrlSkipProtocol(secondUrl);
         softAssert.assertEquals(actualLastUrl, expectedLastUrl,
                                 format("Expected last URL - %s, actual - %s", expectedLastUrl, actualLastUrl));
 

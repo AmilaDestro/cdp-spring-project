@@ -63,11 +63,6 @@ public class AbstractActionExecutor {
     }
 
     private Callable<Object> getCallable(final Supplier<Object> supplier) {
-        return new Callable<Object>() {
-            @Override
-            public Object call() throws Exception {
-                return supplier.get();
-            }
-        };
+        return supplier::get;
     }
 }

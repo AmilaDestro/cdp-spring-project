@@ -2,6 +2,9 @@ package com.akvelon.cdp.data;
 
 import org.testng.annotations.DataProvider;
 
+/**
+ * Contains test data
+ */
 public class TestDataProvider {
     @DataProvider
     public Object[][] urlsToRedirectAndNumbersOfRequest() {
